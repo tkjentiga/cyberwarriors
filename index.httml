@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Warriors - Voucher WiFi & CMS</title>
+    <!-- Memuat Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat Lucide Icons untuk menu -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Menggunakan font Inter secara default */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fce7f6; /* Soft Pink Background */
+        }
+        /* Mengatur padding body agar konten tidak tertutup header dan footer */
+        body {
+            padding-top: 64px; /* Tinggi header */
+            padding-bottom: 64px; /* Tinggi footer/navbar */
+        }
+        /* Mengatur agar konten utama bisa di-scroll di tengah */
+        #content {
+            min-height: calc(100vh - 128px); /* 100vh - (header + footer) */
+        }
+        /* Styling untuk tombol WhatsApp */
+        .whatsapp-button {
+            transition: all 0.2s;
+        }
+        .whatsapp-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        /* Mengubah warna default border fokus input field */
+        input:focus, textarea:focus {
+            border-color: #db2777 !important; /* Pink 600 */
+            box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.2) !important;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- HEADER (Static di Atas) -->
+    <header id="header" class="fixed top-0 left-0 right-0 z-50 bg-white shadow-xl">
+        <div class="max-w-xl mx-auto flex items-center justify-between p-3">
+            <div class="flex items-center space-x-2">
+                <!-- Logo: Saat ini menggunakan ikon Lucide dan teks. -->
+                <!-- Jika Anda ingin menggantinya dengan gambar logo lokal, ganti blok ini dengan: -->
+                <!-- <img src="./assets/images/logo_cyberwarriors.png" alt="Logo Cyber Warriors" class="w-8 h-8"> -->
+                <div class="text-2xl font-black text-pink-600">
+                    <i data-lucide="shield-check" class="w-6 h-6 inline-block"></i>
+                </div>
+                <h1 class="text-xl font-bold text-gray-800">Cyber Warriors</h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- KONTEN UTAMA -->
+    <main id="content" class="max-w-xl mx-auto p-4 bg-white shadow-2xl rounded-lg">
+        <!-- Konten akan dimuat di sini oleh JavaScript -->
+        <div id="dynamic-content">
+            <!-- Loading... -->
+        </div>
+    </main>
+
+    <!-- FOOTER/NAVIGASI (Static di Bawah - Mobile Menu Bar) -->
+    <footer id="navbar" class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-pink-200 shadow-2xl">
+        <div class="max-w-xl mx-auto flex justify-around items-center h-16">
+            <!-- Nav Item - Active Pink -->
+            <button onclick="navigate('home')" class="nav-item flex flex-col items-center justify-center p-2 text-pink-600 hover:text-pink-800 transition duration-150">
+                <i data-lucide="home" class="w-5 h-5"></i>
+                <span class="text-xs mt-1 font-medium">Beranda</span>
+            </button>
+            <!-- Nav Item - Default Gray -->
+            <button onclick="navigate('products')" class="nav-item flex flex-col items-center justify-center p-2 text-gray-500 hover:text-pink-600 transition duration-150">
+                <i data-lucide="wifi" class="w-5 h-5"></i>
+                <span class="text-xs mt-1 font-medium">Voucher</span>
+            </button>
+            <button onclick="navigate('team')" class="nav-item flex flex-col items-center justify-center p-2 text-gray-500 hover:text-pink-600 transition duration-150">
+                <i data-lucide="users" class="w-5 h-5"></i>
+                <span class="text-xs mt-1 font-medium">Pengurus</span>
+            </button>
+            <button onclick="navigate('cms')" class="nav-item flex flex-col items-center justify-center p-2 text-gray-500 hover:text-pink-600 transition duration-150">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+                <span class="text-xs mt-1 font-medium">CMS</span>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        // Inisialisasi Lucide Icons setelah konten dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            navigate('home'); // Tampilkan halaman awal
+        });
+
+        // --- DATABASE SIMULASI (SPREADSHEET MOCK) ---
+        // Data pengurus website
+        const teamMembers = [
+            // MENGGUNAKAN JALUR RELATIF LOKAL untuk FOTO ANGGOTA
+            { name: "Maulana Yusuf", position: "Anggota", photo: "./assets/images/photo_yusuf.jpg", whatsapp: "6281234567890" }, 
+            { name: "Sadim", position: "Anggota", photo: "./assets/images/photo_sadim.jpg", whatsapp: "6289876543210" }, 
+            { name: "Anggi Saputri", position: "Anggota", photo: "./assets/images/photo_anggi.jpg", whatsapp: "6285555555555" }, 
+            { name: "Siti Rahma", position: "Anggota", photo: "./assets/images/photo_siti_r.jpg", whatsapp: "6281111111111" }, 
+            { name: "Seli Yuliyanti", position: "Anggota", photo: "./assets/images/photo_seli.jpg", whatsapp: "6282222222222" }, 
+            { name: "Siti Umayah", position: "Anggota", photo: "./assets/images/photo_siti_u.jpg", whatsapp: "6283333333333" } 
+        ];
+
+        // Data Produk Voucher (Database)
+        let products = [
+            { id: 1, name: 'Voucher 3 Jam', price: 2000, speed: 'Up to 5 Mbps', description: 'Akses cepat internet selama 180 menit. Harga paling hemat!' },
+            { id: 2, name: 'Voucher 6 Jam', price: 3000, speed: 'Up to 10 Mbps', description: 'Cocok untuk streaming, meeting online, atau belajar intensif.' },
+            { id: 3, name: 'Voucher 12 Jam', price: 5000, speed: 'Up to 20 Mbps', description: 'Koneksi stabil selama setengah hari penuh. Terbaik untuk gamer dan pekerja remote.' },
+        ];
+
+        // Variabel untuk mencatat pesanan (Simulasi Spreadsheet)
+        let orderLog = [];
+
+        // Fungsi untuk mencatat pesanan ke "Spreadsheet Database"
+        function logOrderToSpreadsheet(orderData) {
+            orderLog.push({
+                ...orderData,
+                timestamp: new Date().toLocaleString()
+            });
+            // --- INI ADALAH TEMPAT UNTUK API CALL SESUNGGUHNYA ---
+            // Contoh simulasi di console:
+            console.log("--- Mencatat Pesanan ke Database Spreadsheet (Simulasi) ---");
+            console.log("Pesanan Baru:", orderData);
+            console.log("Log Pesanan Saat Ini:", orderLog);
+            // -------------------------------------------------------------
+        }
+
+        // --- LOGIKA NAVIGASI & TAMPILAN ---
+        let currentView = 'home';
+        const dynamicContent = document.getElementById('dynamic-content');
+
+        function navigate(view) {
+            currentView = view;
+            renderContent();
+            // Update warna ikon navigasi
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                const buttonView = btn.getAttribute('onclick').match(/'(\w+)'/)[1];
+                if (buttonView === view) {
+                    btn.classList.add('text-pink-600');
+                    btn.classList.remove('text-gray-500');
+                } else {
+                    btn.classList.remove('text-pink-600');
+                    btn.classList.add('text-gray-500');
+                }
+            });
+        }
+
+        function renderContent() {
+            window.scrollTo(0, 0); // Gulir ke atas saat navigasi
+            let html = '';
+
+            switch (currentView) {
+                case 'home':
+                    html = renderHomeView();
+                    break;
+                case 'products':
+                    html = renderProductsView();
+                    break;
+                case 'team':
+                    html = renderTeamView();
+                    break;
+                case 'cms':
+                    html = renderCMSView();
+                    break;
+                default:
+                    html = renderHomeView();
+            }
+            dynamicContent.innerHTML = html;
+            lucide.createIcons(); // Re-render Lucide icons
+        }
+
+        // --- VIEW RENDERERS ---
+
+        function renderHomeView() {
+            return `
+                <div class="text-center py-8">
+                    <h2 class="text-3xl font-extrabold text-gray-800 mb-2">Selamat Datang di Cyber Warriors</h2>
+                    <p class="text-gray-600 mb-6">Layanan internet voucher tercepat dan termurah dengan sentuhan *pink*!</p>
+                    <button onclick="navigate('products')" class="bg-pink-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-pink-700 transition duration-200">
+                        Lihat Daftar Voucher <i data-lucide="arrow-right" class="w-4 h-4 inline ml-2"></i>
+                    </button>
+                </div>
+
+                <!-- Gambar/Poster Potret di Beranda (Menggunakan jalur lokal) -->
+                <div class="mb-8 p-4 bg-pink-50 rounded-xl shadow-xl border border-pink-200 flex justify-center">
+                    <div>
+                        <h3 class="text-xl font-bold text-pink-700 mb-4 text-center">Promosi Terbaru!</h3>
+                        <img src="./assets/images/poster_promo.jpg" 
+                            onerror="this.onerror=null;this.src='https://placehold.co/300x450/ec4899/ffffff?text=Poster%0APromo%0APotret'"
+                            alt="Poster Promosi Voucher WiFi Potret" 
+                            class="w-auto h-auto rounded-xl shadow-lg border-4 border-white object-cover max-w-full">
+                        <p class="mt-3 text-sm text-center text-gray-600">Dapatkan kecepatan maksimal dengan harga terbaik kami. Klik Voucher untuk detail!</p>
+                    </div>
+                </div>
+
+                <div class="mt-8 p-4 bg-purple-50 border-l-4 border-purple-500 rounded-lg">
+                    <h3 class="text-xl font-semibold text-purple-800 mb-2">Pemberitahuan Penting</h3>
+                    <p class="text-purple-700">Kami menggunakan sistem pemesanan otomatis via WhatsApp untuk kenyamanan Anda. Pembayaran dilakukan setelah Anda terhubung langsung dengan admin kami.</p>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Kenapa Memilih Kami?</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start space-x-3 p-3 bg-pink-100 rounded-xl shadow-md">
+                            <i data-lucide="zap" class="w-6 h-6 text-pink-500 flex-shrink-0 mt-1"></i>
+                            <div>
+                                <h4 class="font-semibold text-gray-700">Kecepatan Maksimal</h4>
+                                <p class="text-sm text-gray-500">Jaringan stabil dan berkecepatan tinggi untuk semua aktivitas online.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start space-x-3 p-3 bg-purple-100 rounded-xl shadow-md">
+                            <i data-lucide="wallet" class="w-6 h-6 text-purple-500 flex-shrink-0 mt-1"></i>
+                            <div>
+                                <h4 class="font-semibold text-gray-700">Harga Terjangkau</h4>
+                                <p class="text-sm text-gray-500">Pilihan voucher dengan harga yang ramah di kantong.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start space-x-3 p-3 bg-pink-100 rounded-xl shadow-md">
+                            <i data-lucide="lock" class="w-6 h-6 text-red-500 flex-shrink-0 mt-1"></i>
+                            <div>
+                                <h4 class="font-semibold text-gray-700">Aman & Terpercaya</h4>
+                                <p class="text-sm text-gray-500">Didukung oleh tim pengurus yang profesional.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        function renderProductsView() {
+            return `
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Daftar Voucher WiFi</h2>
+                <div class="space-y-6">
+                    ${products.map(product => `
+                        <div class="bg-white p-5 border border-pink-300 rounded-xl shadow-2xl hover:shadow-pink-300/50 transition duration-300">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="text-xl font-extrabold text-pink-600">${product.name}</h3>
+                                <span class="bg-purple-100 text-purple-700 font-bold py-1 px-3 rounded-full text-sm">
+                                    Rp ${product.price.toLocaleString('id-ID')}
+                                </span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">${product.description}</p>
+                            <div class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
+                                <i data-lucide="gauge" class="w-4 h-4 text-pink-500"></i>
+                                <span>Kecepatan: ${product.speed}</span>
+                            </div>
+                            <button onclick="orderViaWhatsapp(${product.id})" class="whatsapp-button w-full bg-purple-600 text-white font-semibold py-2 rounded-lg flex items-center justify-center space-x-2 shadow-md hover:bg-purple-700">
+                                <i data-lucide="whatsapp" class="w-5 h-5"></i>
+                                <span>Pesan Otomatis via WhatsApp</span>
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderTeamView() {
+            return `
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Pengurus Website Cyber Warriors</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    ${teamMembers.map(member => `
+                        <div class="bg-white p-4 border border-pink-200 rounded-xl shadow-lg text-center">
+                            <!-- Jalur Foto Lokal dengan Fallback Placeholder -->
+                            <img src="${member.photo}" 
+                                onerror="this.onerror=null;this.src='https://placehold.co/100x100/ec4899/ffffff?text=FOTO';"
+                                alt="Foto ${member.name}" 
+                                class="w-20 h-20 rounded-full mx-auto mb-3 object-cover shadow-md border-4 border-pink-300">
+                            <h3 class="text-md font-bold text-gray-800">${member.name}</h3>
+                            <p class="text-pink-600 text-sm font-semibold mb-3">${member.position}</p>
+                            <a href="https://wa.me/${member.whatsapp}?text=Halo%20${member.name},%20saya%20tertarik%20dengan%20layanan%20Cyber%20Warriors." target="_blank" class="text-xs text-purple-600 hover:text-purple-800 hover:underline">
+                                Hubungi via WA
+                            </a>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderCMSView() {
+            // Tampilkan form login sederhana atau konten CMS jika sudah login
+            if (!localStorage.getItem('isCMSLoggedIn')) {
+                return `
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">CMS Admin Login</h2>
+                    <p class="text-gray-600 mb-4">Silakan masukkan password admin untuk mengakses manajemen produk.</p>
+                    <div class="p-6 bg-pink-100 rounded-xl shadow-inner border border-pink-300">
+                        <input type="password" id="cms-password" placeholder="Password Admin (Default: 12345)" class="w-full p-3 border border-pink-400 rounded-lg mb-4 focus:ring-pink-500 focus:border-pink-500">
+                        <button onclick="cmsLogin()" class="w-full bg-pink-600 text-white font-semibold py-3 rounded-lg hover:bg-pink-700 transition duration-200 shadow-md">
+                            Masuk
+                        </button>
+                        <p id="login-message" class="mt-3 text-red-600"></p>
+                    </div>
+                `;
+            } else {
+                return `
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Content Management System (CMS)</h2>
+
+                    <!-- Form Tambah/Edit Produk -->
+                    <div class="bg-pink-50 p-5 rounded-xl mb-6 shadow-xl border border-pink-200">
+                        <h3 class="text-xl font-bold text-pink-700 mb-4">Tambah / Edit Produk Voucher</h3>
+                        <form id="product-form" onsubmit="handleProductSubmit(event)">
+                            <input type="hidden" id="product-id">
+                            <div class="mb-3">
+                                <label for="product-name" class="block text-sm font-medium text-gray-700">Nama Voucher</label>
+                                <input type="text" id="product-name" required class="w-full p-2 border border-gray-300 rounded-lg">
+                            </div>
+                            <div class="mb-3">
+                                <label for="product-price" class="block text-sm font-medium text-gray-700">Harga (Rp)</label>
+                                <input type="number" id="product-price" required class="w-full p-2 border border-gray-300 rounded-lg">
+                            </div>
+                            <div class="mb-3">
+                                <label for="product-speed" class="block text-sm font-medium text-gray-700">Kecepatan (Cth: Up to 5 Mbps)</label>
+                                <input type="text" id="product-speed" required class="w-full p-2 border border-gray-300 rounded-lg">
+                            </div>
+                            <div class="mb-4">
+                                <label for="product-description" class="block text-sm font-medium text-gray-700">Deskripsi</label>
+                                <textarea id="product-description" required class="w-full p-2 border border-gray-300 rounded-lg"></textarea>
+                            </div>
+                            <button type="submit" id="submit-btn" class="bg-purple-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-600 transition duration-200 shadow-md">
+                                Tambah Produk
+                            </button>
+                            <button type="button" onclick="clearForm()" class="ml-2 bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200">
+                                Batal
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Daftar Produk Saat Ini -->
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Produk Aktif (${products.length} Item)</h3>
+                    <div class="space-y-4">
+                        ${products.map(product => `
+                            <div class="bg-white p-4 border border-purple-100 rounded-lg flex justify-between items-center shadow-md">
+                                <div>
+                                    <p class="font-bold text-gray-800">${product.name} (Rp ${product.price.toLocaleString('id-ID')})</p>
+                                    <p class="text-sm text-gray-500">${product.speed}</p>
+                                </div>
+                                <div class="space-x-2 flex">
+                                    <button onclick="editProduct(${product.id})" class="text-purple-500 hover:text-purple-700 p-1 rounded-full bg-purple-100">
+                                        <i data-lucide="square-pen" class="w-4 h-4"></i>
+                                    </button>
+                                    <button onclick="deleteProduct(${product.id})" class="text-red-500 hover:text-red-700 p-1 rounded-full bg-red-100">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- Tombol Logout -->
+                    <button onclick="cmsLogout()" class="mt-6 w-full bg-pink-600 text-white font-semibold py-2 rounded-lg hover:bg-pink-700 transition duration-200 shadow-md">
+                        Logout CMS
+                    </button>
+
+                    <!-- Log Spreadsheet Pesanan (Simulasi) -->
+                    <div class="mt-8 pt-4 border-t border-pink-300">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3">Log Pesanan Terakhir (Simulasi Database)</h3>
+                        <div class="bg-gray-100 p-3 rounded-lg text-xs space-y-1 overflow-auto max-h-48">
+                            ${orderLog.length > 0 ? orderLog.map(log => `
+                                <p class="border-b pb-1 text-gray-700">
+                                    <span class="font-mono text-gray-500">[${log.timestamp}]</span> - ${log.productName} (Qty: ${log.quantity}) dari ${log.customerName}
+                                </p>
+                            `).reverse().join('') : '<p class="text-gray-500">Belum ada pesanan yang tercatat.</p>'}
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">*Pencatatan ini hanya simulasi penyimpanan di browser. Data asli akan dikirim ke Spreadsheet API.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // --- LOGIKA CMS (CRUD Sederhana) ---
+
+        const ADMIN_PASSWORD = '12345'; // Password default
+
+        function cmsLogin() {
+            const passwordInput = document.getElementById('cms-password');
+            const message = document.getElementById('login-message');
+            if (passwordInput.value === ADMIN_PASSWORD) {
+                localStorage.setItem('isCMSLoggedIn', 'true');
+                navigate('cms');
+            } else {
+                message.textContent = 'Password salah. Silakan coba lagi.';
+                passwordInput.value = '';
+            }
+        }
+
+        function cmsLogout() {
+            localStorage.removeItem('isCMSLoggedIn');
+            navigate('cms');
+        }
+
+        function handleProductSubmit(event) {
+            event.preventDefault();
+            const id = document.getElementById('product-id').value;
+            const name = document.getElementById('product-name').value;
+            const price = parseInt(document.getElementById('product-price').value);
+            const speed = document.getElementById('product-speed').value;
+            const description = document.getElementById('product-description').value;
+
+            const newProduct = { name, price, speed, description };
+
+            if (id) {
+                // Edit existing product
+                const index = products.findIndex(p => p.id == id);
+                if (index !== -1) {
+                    products[index] = { ...products[index], ...newProduct };
+                    console.log(`Produk ID ${id} berhasil diupdate. (Simulasi Spreadsheet Save)`);
+                }
+            } else {
+                // Add new product
+                const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
+                products.push({ id: newId, ...newProduct });
+                console.log(`Produk baru ID ${newId} berhasil ditambahkan. (Simulasi Spreadsheet Save)`);
+            }
+
+            clearForm();
+            navigate('cms'); // Refresh view
+        }
+
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (product) {
+                document.getElementById('product-id').value = product.id;
+                document.getElementById('product-name').value = product.name;
+                document.getElementById('product-price').value = product.price;
+                document.getElementById('product-speed').value = product.speed;
+                document.getElementById('product-description').value = product.description;
+                document.getElementById('submit-btn').textContent = 'Simpan Perubahan';
+                window.scrollTo(0, document.getElementById('product-form').offsetTop - 80);
+            }
+        }
+
+        function deleteProduct(id) {
+            if (confirm(`Anda yakin ingin menghapus produk ID ${id}? (Tindakan ini tidak dapat dibatalkan)`)) {
+                products = products.filter(p => p.id !== id);
+                console.log(`Produk ID ${id} berhasil dihapus. (Simulasi Spreadsheet Save)`);
+                navigate('cms'); // Refresh view
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('product-form').reset();
+            document.getElementById('product-id').value = '';
+            document.getElementById('submit-btn').textContent = 'Tambah Produk';
+        }
+
+        // --- LOGIKA PEMESANAN WHATSAPP OTOMATIS ---
+
+        function orderViaWhatsapp(productId) {
+            const product = products.find(p => p.id === productId);
+
+            if (!product) {
+                console.error("Produk tidak ditemukan.");
+                return;
+            }
+
+            // Gunakan nomor admin pertama (Maulana Yusuf) sebagai tujuan pemesanan
+            const adminWhatsapp = teamMembers[0].whatsapp;
+            const customerName = prompt("Masukkan Nama Anda untuk Pemesanan:");
+            if (!customerName) return;
+
+            const quantity = 1; // Default 1
+            const message = `Halo Cyber Warriors,\n\nSaya ${customerName} ingin memesan voucher WiFi berikut:\n\n*Produk:* ${product.name}\n*Harga:* Rp ${product.price.toLocaleString('id-ID')}\n*Keterangan:* ${product.description}\n\nMohon petunjuk untuk proses pembayaran dan pengiriman kode voucher. Terima kasih.`;
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappLink = `https://wa.me/${adminWhatsapp}?text=${encodedMessage}`;
+
+            // 1. Catat Pesanan ke Spreadsheet Database (Simulasi)
+            const orderData = {
+                productID: product.id,
+                productName: product.name,
+                price: product.price,
+                quantity: quantity,
+                customerName: customerName,
+                status: "Pending WA Contact",
+                adminContacted: adminWhatsapp
+            };
+            logOrderToSpreadsheet(orderData);
+
+            // 2. Arahkan ke WhatsApp
+            window.open(whatsappLink, '_blank');
+        }
+
+    </script>
+</body>
+</html>
